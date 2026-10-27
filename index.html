@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PYAEFOLIO GT  — Pyae Phyo Hlaing</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="relative w-full h-full overflow-hidden select-none">
+
+  <!-- 3D WebGL Track & Showroom Canvas -->
+  <canvas id="race-canvas" class="fixed inset-0 w-full h-full z-0 block cursor-grab active:cursor-grabbing"></canvas>
+
+  <!-- TOP TELEMETRY & NAVIGATION BAR -->
+  <header class="fixed top-0 left-0 right-0 z-30 px-3 py-2.5 sm:px-6 sm:py-3 pointer-events-none">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <!-- Brand / Driver Tag -->
+      <div class="hud-glass rounded-xl px-3.5 py-2 flex items-center gap-3 pointer-events-auto border-l-4 border-l-red-500">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-red-600 to-amber-500 flex items-center justify-center font-racing font-black text-sm tracking-tighter shadow-md">
+          PPH
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-racing font-bold text-xs sm:text-sm tracking-wider text-[#fcee0a] drop-shadow-[0_0_8px_rgba(252,238,10,0.5)]">PYAEFOLIO // 2077</span>
+            <span id="active-car-pill" class="text-[10px] font-racing uppercase px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/50">APEX GT-R</span>
+            <span class="hidden xl:inline-block text-[9px] font-racing uppercase px-1.5 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/40">ナイトシティ NIGHT CITY</span>
+          </div>
+          <p class="text-[11px] text-cyan-200/80 hidden sm:block">Pyae Phyo Hlaing • Junior Full Stack Developer</p>
+        </div>
+      </div>
+
+      <!-- Pit-Stop Teleport & View Mode Switcher -->
+      <nav class="hud-glass rounded-xl p-1.5 flex items-center gap-1 sm:gap-1.5 pointer-events-auto overflow-x-auto max-w-full">
+        <button id="nav-track-btn" class="px-2.5 py-1.5 rounded-lg font-racing text-[11px] font-bold tracking-wider uppercase transition-all bg-red-600 text-white shadow">
+          3D Circuit
+        </button>
+        <button id="nav-garage-btn" class="px-2.5 py-1.5 rounded-lg font-racing text-[11px] font-bold tracking-wider uppercase transition-all text-slate-300 hover:text-white hover:bg-white/10">
+          Supercar Garage
+        </button>
+        <button id="nav-pit-projects" class="px-2.5 py-1.5 rounded-lg font-racing text-[11px] font-bold tracking-wider uppercase transition-all text-slate-300 hover:text-white hover:bg-white/10 hidden md:inline-block">
+          Projects Pit
+        </button>
+        <button id="nav-pit-skills" class="px-2.5 py-1.5 rounded-lg font-racing text-[11px] font-bold tracking-wider uppercase transition-all text-slate-300 hover:text-white hover:bg-white/10 hidden md:inline-block">
+          Dyno Skills
+        </button>
+        <button id="nav-pit-career" class="px-2.5 py-1.5 rounded-lg font-racing text-[11px] font-bold tracking-wider uppercase transition-all text-slate-300 hover:text-white hover:bg-white/10 hidden lg:inline-block">
+          Career &amp; Bio
+        </button>
+        <button id="nav-hud-modal-btn" class="px-2.5 py-1.5 rounded-lg font-racing text-[11px] font-bold tracking-wider uppercase transition-all bg-white/10 text-amber-300 hover:bg-white/20 border border-amber-400/30">
+          Full Dossier
+        </button>
+      </nav>
+
+      <!-- Utility Controls: Autopilot, Camera, Audio -->
+      <div class="hud-glass rounded-xl p-1.5 flex items-center gap-1.5 pointer-events-auto">
+        <button id="autopilot-btn" title="Toggle AI Cruise Autopilot" class="px-2.5 py-1.5 rounded-lg text-[11px] font-racing font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30 transition-all flex items-center gap-1.5">
+          <span id="autopilot-dot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span class="hidden sm:inline">AI Drive:</span> <span id="autopilot-state">OFF</span>
+        </button>
+        <button id="camera-btn" title="Cycle Camera Angle (C)" class="px-2.5 py-1.5 rounded-lg text-[11px] font-racing font-semibold uppercase tracking-wider bg-white/5 hover:bg-white/15 text-slate-200 border border-white/10 transition-all">
+          Cam: <span id="camera-label">Chase</span>
+        </button>
+        <button id="weather-btn" title="Cycle Night City Weather & Atmosphere" class="px-2.5 py-1.5 rounded-lg text-[11px] font-racing font-semibold uppercase tracking-wider bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/40 transition-all">
+          FX: <span id="weather-label">Neon Rain</span>
+        </button>
+        <button id="audio-btn" title="Toggle V10 Engine Synthesizer" class="px-2.5 py-1.5 rounded-lg text-[11px] font-racing font-semibold uppercase tracking-wider bg-white/5 hover:bg-white/15 text-slate-300 border border-white/10 transition-all">
+          Audio: <span id="audio-label">MUTE</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- LEFT HUD: CIRCUIT TELEMETRY & QUICK WAYPOINTS -->
+  <aside id="left-telemetry" class="fixed left-3 sm:left-6 top-20 z-20 w-60 sm:w-64 pointer-events-none flex flex-col gap-2.5">
+    <!-- Lap & Sector Card -->
+    <div class="hud-glass rounded-xl p-3 pointer-events-auto">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
+        <span class="text-[10px] font-racing uppercase tracking-widest text-slate-400">Circuit Telemetry</span>
+        <span id="current-sector-badge" class="text-[10px] font-racing font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-400">SECTOR 1</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs mb-2.5">
+        <div class="bg-slate-900/70 rounded-lg p-2 border border-white/5">
+          <div class="text-[10px] text-slate-400 uppercase">Lap Time</div>
+          <div id="lap-timer" class="font-racing font-bold text-sm text-white">00:00.0</div>
+        </div>
+        <div class="bg-slate-900/70 rounded-lg p-2 border border-white/5">
+          <div class="text-[10px] text-slate-400 uppercase">Best Lap</div>
+          <div id="best-lap" class="font-racing font-bold text-sm text-amber-400">--:--.-</div>
+        </div>
+      </div>
+      <!-- Quick Teleport Checkpoints -->
+      <div class="text-[10px] font-racing uppercase tracking-wider text-slate-400 mb-1.5">Pit-Stop Teleport (Click to Warp)</div>
+      <div class="grid grid-cols-2 gap-1.5">
+        <button data-warp="0" class="warp-btn text-left px-2 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 border border-white/10 hover:border-red-500/40 transition-all text-[11px] flex items-center justify-between">
+          <span>01 Start Grid</span>
+          <span class="text-[9px] text-red-400 font-racing">S1</span>
+        </button>
+        <button data-warp="0.25" class="warp-btn text-left px-2 py-1.5 rounded-lg bg-white/5 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-500/40 transition-all text-[11px] flex items-center justify-between">
+          <span>02 Experience</span>
+          <span class="text-[9px] text-cyan-400 font-racing">S2</span>
+        </button>
+        <button data-warp="0.52" class="warp-btn text-left px-2 py-1.5 rounded-lg bg-white/5 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/40 transition-all text-[11px] flex items-center justify-between">
+          <span>03 Projects</span>
+          <span class="text-[9px] text-amber-400 font-racing">S3</span>
+        </button>
+        <button data-warp="0.78" class="warp-btn text-left px-2 py-1.5 rounded-lg bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/40 transition-all text-[11px] flex items-center justify-between">
+          <span>04 Tech &amp; Comms</span>
+          <span class="text-[9px] text-emerald-400 font-racing">S4</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls Legend (Desktop) -->
+    <div class="hud-glass rounded-xl p-3 pointer-events-auto hidden md:block">
+      <div class="text-[10px] font-racing uppercase tracking-widest text-slate-400 mb-1.5">Driver Controls</div>
+      <div class="space-y-1 text-[11px] text-slate-300">
+        <div class="flex justify-between"><span>Throttle / Brake</span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-[10px] font-racing text-amber-300">W / S or ↑ / ↓</kbd></div>
+        <div class="flex justify-between"><span>Steer Left / Right</span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-[10px] font-racing text-amber-300">A / D or ← / →</kbd></div>
+        <div class="flex justify-between"><span>NOS Boosters</span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-[10px] font-racing text-cyan-300">SHIFT / SPACE</kbd></div>
+        <div class="flex justify-between"><span>Switch Supercar</span><kbd class="px-1.5 py-0.5 bg-slate-800 rounded text-[10px] font-racing text-red-400">1 / 2 / 3</kbd></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT HUD: LIVE PIT-STOP PORTFOLIO CARD (Updates dynamically as you drive through zones) -->
+  <aside id="zone-card-container" class="fixed right-3 sm:right-6 top-20 z-20 w-72 sm:w-96 pointer-events-none transition-all duration-300">
+    <div id="live-zone-card" class="hud-glass hud-border-accent rounded-2xl p-4 pointer-events-auto">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <span id="zone-tag" class="text-[10px] font-racing font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">
+          CHECKPOINT 01 // POLE POSITION
+        </span>
+        <span id="zone-distance" class="text-[11px] font-racing text-slate-400">0m</span>
+      </div>
+      <h2 id="zone-title" class="font-racing font-extrabold text-base sm:text-lg text-white leading-snug mb-1">
+        Pyae Phyo Hlaing — Junior Full Stack Developer
+      </h2>
+      <p id="zone-subtitle" class="text-xs text-amber-300 font-medium mb-2">
+        Yangon, Myanmar • Web / Backend / Mobile
+      </p>
+      <p id="zone-desc" class="text-xs text-slate-300 leading-relaxed mb-3">
+        Computer Science student (B.Comp.Sc, 2019–2027) building web and mobile applications with React, Node.js, Express, MongoDB and Flutter — from backend APIs to user-facing experiences. Drive forward or hit a pit-stop button to inspect projects and internships!
+      </p>
+      <div id="zone-badges" class="flex flex-wrap gap-1.5 mb-3">
+        <span class="px-2 py-0.5 text-[10px] rounded-md bg-white/10 text-slate-200 font-medium">React &amp; Node.js</span>
+        <span class="px-2 py-0.5 text-[10px] rounded-md bg-white/10 text-slate-200 font-medium">Laravel &amp; Prisma</span>
+        <span class="px-2 py-0.5 text-[10px] rounded-md bg-white/10 text-slate-200 font-medium">Java RMI / Spring Boot</span>
+        <span class="px-2 py-0.5 text-[10px] rounded-md bg-white/10 text-slate-200 font-medium">Flutter Mobile</span>
+      </div>
+      <div id="zone-actions" class="flex flex-wrap items-center gap-2 pt-2 border-t border-white/10">
+        <a id="zone-primary-link" href="https://pyaefolio.netlify.app/" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-racing text-[11px] font-bold uppercase tracking-wider transition-all">
+          Live Reference Site ↗
+        </a>
+        <button id="zone-inspect-btn" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 font-racing text-[11px] font-bold uppercase tracking-wider transition-all">
+          Inspect Full Details
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- BOTTOM HUD: MOBILE TOUCH CONTROLS + DIGITAL SPEEDOMETER & TACHOMETER -->
+  <div class="fixed bottom-3 left-3 right-3 sm:bottom-5 sm:left-6 sm:right-6 z-20 pointer-events-none flex items-end justify-between gap-3">
+    
+    <!-- On-Screen Touch Steering (Left / Right) -->
+    <div class="flex items-center gap-2 pointer-events-auto">
+      <button id="touch-left" aria-label="Steer Left" class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl hud-glass active:bg-red-600/60 flex items-center justify-center text-lg font-racing font-bold text-white border border-white/15 shadow-lg">
+        ◀
+      </button>
+      <button id="touch-right" aria-label="Steer Right" class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl hud-glass active:bg-red-600/60 flex items-center justify-center text-lg font-racing font-bold text-white border border-white/15 shadow-lg">
+        ▶
+      </button>
+    </div>
+
+    <!-- Center Digital Racing Cluster (Speed, Gear, RPM, Nitro) -->
+    <div class="hud-glass rounded-2xl px-4 py-2.5 sm:px-6 sm:py-3 pointer-events-auto flex flex-col items-center min-w-[210px] sm:min-w-[300px]">
+      <!-- RPM Bar -->
+      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-2 p-0.5 border border-white/10">
+        <div id="rpm-bar" class="tach-bar h-full rounded-full bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500" style="width: 18%;"></div>
+      </div>
+      <div class="w-full flex items-center justify-between gap-4">
+        <!-- Gear Indicator -->
+        <div class="flex flex-col items-center">
+          <span class="text-[9px] font-racing uppercase text-slate-400">GEAR</span>
+          <div id="hud-gear" class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-red-600/20 border border-red-500/50 flex items-center justify-center font-racing font-black text-lg sm:text-xl text-red-400">
+            N
+          </div>
+        </div>
+        <!-- Digital Speed -->
+        <div class="text-center">
+          <div id="hud-speed" class="font-racing font-black text-2xl sm:text-4xl tracking-tight text-white leading-none">
+            000
+          </div>
+          <span class="text-[10px] font-racing uppercase tracking-widest text-slate-400">KM/H • TELEMETRY</span>
+        </div>
+        <!-- Nitro Tank -->
+        <div class="flex flex-col items-end">
+          <span class="text-[9px] font-racing uppercase text-cyan-400">NOS BOOST</span>
+          <div class="w-16 sm:w-20 h-3 bg-slate-800 rounded-md overflow-hidden border border-cyan-500/30 mt-1">
+            <div id="hud-nitro" class="h-full bg-gradient-to-r from-cyan-500 to-blue-400 transition-all duration-75" style="width: 100%;"></div>
+          </div>
+          <span id="rpm-readout" class="text-[9px] font-racing text-slate-400 mt-0.5">1,200 RPM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- On-Screen Touch Pedals (Brake, Throttle, NOS) -->
+    <div class="flex items-center gap-2 pointer-events-auto">
+      <button id="touch-brake" aria-label="Brake or Reverse" class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl hud-glass active:bg-amber-600/60 flex flex-col items-center justify-center text-[10px] font-racing font-bold text-amber-300 border border-amber-500/30 shadow-lg">
+        <span>▼</span>
+        <span>BRK</span>
+      </button>
+      <button id="touch-gas" aria-label="Accelerate" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-600/80 hover:bg-red-600 active:scale-95 flex flex-col items-center justify-center text-xs font-racing font-black text-white border border-red-400 shadow-lg">
+        <span>▲</span>
+        <span>GAS</span>
+      </button>
+      <button id="touch-nos" aria-label="Nitrous Boost" class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-cyan-600/30 hover:bg-cyan-500/40 active:bg-cyan-400/60 flex flex-col items-center justify-center text-[10px] font-racing font-bold text-cyan-300 border border-cyan-400/50 shadow-lg">
+        <span>⚡</span>
+        <span>NOS</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SUPERCAR GARAGE SELECTOR DRAWER (Toggled when in Garage Mode) -->
+  <div id="garage-drawer" class="fixed inset-x-0 bottom-24 z-30 px-4 pointer-events-none hidden">
+    <div class="max-w-4xl mx-auto hud-glass rounded-2xl p-4 sm:p-5 pointer-events-auto border border-white/15">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4 border-b border-white/10">
+        <div>
+          <span class="text-[10px] font-racing uppercase tracking-widest text-red-400">PADDOCK SHOWROOM // SELECT MACHINE</span>
+          <h3 class="font-racing font-bold text-lg text-white">Top-Tier Racing Sport Cars</h3>
+        </div>
+        <button id="garage-launch-btn" class="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-racing text-xs font-bold uppercase tracking-wider shadow-lg transition-all">
+          Launch Selected Car onto Track →
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <!-- Car 0: Crimson Apex GT-R -->
+        <button data-car="0" class="car-select-card text-left p-3.5 rounded-xl bg-white/10 border-2 border-red-500 transition-all hover:bg-white/15">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-racing font-bold text-sm text-white">01 // APEX GT-R</span>
+            <span class="w-3 h-3 rounded-full bg-red-500 shadow"></span>
+          </div>
+          <p class="text-[11px] text-red-300 font-medium mb-2">MERN Full-Stack Spec</p>
+          <div class="space-y-1 text-[10px] text-slate-300">
+            <div class="flex justify-between"><span>Top Speed</span><span class="font-racing text-white">355 KM/H</span></div>
+            <div class="flex justify-between"><span>Acceleration</span><span class="font-racing text-emerald-400">2.4s 0-100</span></div>
+            <div class="flex justify-between"><span>Handling</span><span class="font-racing text-amber-300">9.6 / 10</span></div>
+          </div>
+        </button>
+        <!-- Car 1: Cyber Valkyrie -->
+        <button data-car="1" class="car-select-card text-left p-3.5 rounded-xl bg-white/5 border-2 border-transparent transition-all hover:bg-white/15">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-racing font-bold text-sm text-white">02 // CYBER VALKYRIE</span>
+            <span class="w-3 h-3 rounded-full bg-cyan-400 shadow"></span>
+          </div>
+          <p class="text-[11px] text-cyan-300 font-medium mb-2">Distributed Backend Spec</p>
+          <div class="space-y-1 text-[10px] text-slate-300">
+            <div class="flex justify-between"><span>Top Speed</span><span class="font-racing text-white">382 KM/H</span></div>
+            <div class="flex justify-between"><span>Acceleration</span><span class="font-racing text-emerald-400">2.1s 0-100</span></div>
+            <div class="flex justify-between"><span>Handling</span><span class="font-racing text-amber-300">9.2 / 10</span></div>
+          </div>
+        </button>
+        <!-- Car 2: Golden Solis P1 -->
+        <button data-car="2" class="car-select-card text-left p-3.5 rounded-xl bg-white/5 border-2 border-transparent transition-all hover:bg-white/15">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-racing font-bold text-sm text-white">03 // SOLIS P1 GT</span>
+            <span class="w-3 h-3 rounded-full bg-amber-400 shadow"></span>
+          </div>
+          <p class="text-[11px] text-amber-300 font-medium mb-2">Cross-Platform Flutter Spec</p>
+          <div class="space-y-1 text-[10px] text-slate-300">
+            <div class="flex justify-between"><span>Top Speed</span><span class="font-racing text-white">368 KM/H</span></div>
+            <div class="flex justify-between"><span>Acceleration</span><span class="font-racing text-emerald-400">2.3s 0-100</span></div>
+            <div class="flex justify-between"><span>Handling</span><span class="font-racing text-amber-300">9.9 / 10</span></div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL INTERACTIVE PORTFOLIO DOSSIER MODAL (Paddock Telemetry Hub) -->
+  <div id="dossier-modal" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 hidden">
+    <div class="hud-glass w-full max-w-6xl max-h-[90vh] rounded-2xl border border-white/20 flex flex-col overflow-hidden shadow-2xl">
+      
+      <!-- Modal Top Header -->
+      <div class="px-5 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 bg-slate-950/70">
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-1 rounded bg-red-600 font-racing font-bold text-xs uppercase tracking-wider">PADDOCK TELEMETRY</span>
+          <div>
+            <h2 class="font-racing font-bold text-base sm:text-xl text-white">Pyae Phyo Hlaing // Complete Racing Portfolio</h2>
+            <p class="text-xs text-slate-400">Reference: <a href="https://pyaefolio.netlify.app/" target="_blank" rel="noopener noreferrer" class="text-red-400 hover:underline">pyaefolio.netlify.app</a> • Yangon, Myanmar</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Modal Sub-Tabs -->
+          <div class="flex bg-slate-900 rounded-xl p-1 border border-white/10">
+            <button data-tab="overview" class="dossier-tab-btn px-3 py-1.5 rounded-lg font-racing text-xs font-bold uppercase bg-red-600 text-white">Overview</button>
+            <button data-tab="projects" class="dossier-tab-btn px-3 py-1.5 rounded-lg font-racing text-xs font-bold uppercase text-slate-300 hover:text-white">8 Projects</button>
+            <button data-tab="skills" class="dossier-tab-btn px-3 py-1.5 rounded-lg font-racing text-xs font-bold uppercase text-slate-300 hover:text-white">Dyno Skills</button>
+            <button data-tab="contact" class="dossier-tab-btn px-3 py-1.5 rounded-lg font-racing text-xs font-bold uppercase text-slate-300 hover:text-white">Pit Radio</button>
+          </div>
+          <button id="close-dossier-btn" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-red-600 text-white font-racing text-xs font-bold uppercase transition-all">
+            ✕ Resume Race
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Scrollable Body -->
+      <div class="p-5 sm:p-6 overflow-y-auto custom-scroll space-y-6 flex-1">
+
+        <!-- TAB 1: OVERVIEW (HERO + EXPERIENCE + EDUCATION) -->
+        <section id="tab-overview" class="dossier-tab-panel space-y-6">
+          <!-- Hero Showroom Banner with Generated Image -->
+          <div class="relative rounded-2xl overflow-hidden border border-white/15 bg-slate-900">
+            <img src="assets/profile.jpg" alt="Pyaefolio GT Hypercar Showroom" class="w-full h-56 sm:h-72 object-cover opacity-65" />
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent flex flex-col justify-end p-5 sm:p-7">
+              <div class="flex flex-wrap items-center gap-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-racing font-bold bg-red-600 text-white">DRIVER #16 // JUNIOR FULL-STACK DEVELOPER</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-racing bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">MERN • LARAVEL • SPRING BOOT • FLUTTER</span>
+              </div>
+              <h1 class="font-racing font-black text-2xl sm:text-4xl text-white mb-2">Crafting Digital Experiences With Precision</h1>
+              <p class="text-xs sm:text-sm text-slate-200 max-w-3xl leading-relaxed">
+                I'm a Computer Science student building full-stack web and mobile applications, with a focus on React, Node.js and Flutter. Alongside my studies I've developed personal projects and gained internship experience at Tech Breeze Limited and Brainwave Data — my work spans backend services, database design, and application development.
+              </p>
+            </div>
+          </div>
+
+          <!-- Experience & Education Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Work Experience -->
+            <div class="bg-slate-900/80 rounded-2xl p-5 border border-white/10">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="font-racing font-bold text-sm uppercase tracking-wider text-red-400">Championship Team History (Work Experience)</h3>
+                <span class="text-[11px] font-racing text-slate-400">2 SEASONS</span>
+              </div>
+              <div class="space-y-4">
+                <div class="p-4 rounded-xl bg-slate-950/80 border-l-4 border-l-red-500 border border-white/5">
+                  <div class="flex flex-wrap justify-between items-start gap-1 mb-1">
+                    <h4 class="font-bold text-sm text-white">Backend Developer Intern</h4>
+                    <span class="text-[11px] font-racing text-amber-400">April 2025 – Present</span>
+                  </div>
+                  <p class="text-xs text-red-300 font-medium mb-2">Tech Breeze Limited • Yangon</p>
+                  <p class="text-xs text-slate-300 leading-relaxed">
+                    Developed backend services for e-commerce using Laravel, designed database schemas, and built API endpoints.
+                  </p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-950/80 border-l-4 border-l-cyan-400 border border-white/5">
+                  <div class="flex flex-wrap justify-between items-start gap-1 mb-1">
+                    <h4 class="font-bold text-sm text-white">Intern Software Engineer</h4>
+                    <span class="text-[11px] font-racing text-cyan-300">April 2026 – July 2026</span>
+                  </div>
+                  <p class="text-xs text-cyan-300 font-medium mb-2">Brainwave Data Co., Ltd.</p>
+                  <p class="text-xs text-slate-300 leading-relaxed">
+                    Participated in software development projects, enhancing skills in teamwork and programming.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Academic Licence & Quick Bio -->
+            <div class="bg-slate-900/80 rounded-2xl p-5 border border-white/10 flex flex-col justify-between space-y-4">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-racing font-bold text-sm uppercase tracking-wider text-amber-400">Racing Academy &amp; Credentials (Education)</h3>
+                  <span class="text-[11px] font-racing text-slate-400">2019 – 2027</span>
+                </div>
+                <div class="p-4 rounded-xl bg-slate-950/80 border-l-4 border-l-amber-400 border border-white/5 mb-4">
+                  <h4 class="font-bold text-sm text-white mb-1">Bachelor of Computing in Computer Science</h4>
+                  <p class="text-xs text-amber-300 font-medium mb-2">University of Computer Studies, Sittwe &amp; Pathein</p>
+                  <p class="text-xs text-slate-300 leading-relaxed">
+                    Bachelor of Computing in Computer Science (2019–2027), combining strong foundations in distributed systems, data modeling, and software engineering principles with continuous hands-on project building.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Direct Links Bar -->
+              <div class="p-4 rounded-xl bg-gradient-to-r from-red-950/50 to-slate-900 border border-red-500/30 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div class="text-xs font-racing font-bold text-white">Explore Live Links &amp; Repositories</div>
+                  <div class="text-[11px] text-slate-300">Direct access to PyaeFolio, GitHub (@pyaephyo11979), LinkedIn &amp; CV</div>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <a href="https://pyaefolio.netlify.app/" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-racing text-[11px] font-bold uppercase">
+                    pyaefolio.netlify.app ↗
+                  </a>
+                  <a href="https://github.com/pyaephyo11979" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-racing text-[11px] font-bold uppercase">
+                    GitHub Profile ↗
+                  </a>
+                  <a href="https://www.linkedin.com/in/pyareph" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-racing text-[11px] font-bold uppercase">
+                    LinkedIn ↗
+                  </a>
+                  <a href="https://drive.google.com/uc?export=download&amp;id=1FyIwB03rEXa1Xejk5I1QOScLv3aFPegh" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white font-racing text-[11px] font-bold uppercase">
+                    Download CV ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: 8 FEATURED PROJECTS (TROPHY CABINET) -->
+        <section id="tab-projects" class="dossier-tab-panel space-y-4 hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 class="font-racing font-bold text-base text-white">Grand Prix Project Trophy Cabinet (All 8 PyaeFolio Projects)</h3>
+              <p class="text-xs text-slate-400">Filter by engineering class or warp your supercar directly to that project's track sector.</p>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button data-filter="all" class="proj-filter-btn px-3 py-1 rounded-lg font-racing text-[11px] font-bold uppercase bg-red-600 text-white">All (8)</button>
+              <button data-filter="fullstack" class="proj-filter-btn px-3 py-1 rounded-lg font-racing text-[11px] font-bold uppercase bg-white/5 text-slate-300 hover:bg-white/15">Full-Stack</button>
+              <button data-filter="backend" class="proj-filter-btn px-3 py-1 rounded-lg font-racing text-[11px] font-bold uppercase bg-white/5 text-slate-300 hover:bg-white/15">Backend</button>
+              <button data-filter="frontend" class="proj-filter-btn px-3 py-1 rounded-lg font-racing text-[11px] font-bold uppercase bg-white/5 text-slate-300 hover:bg-white/15">Frontend</button>
+              <button data-filter="mobile" class="proj-filter-btn px-3 py-1 rounded-lg font-racing text-[11px] font-bold uppercase bg-white/5 text-slate-300 hover:bg-white/15">Mobile</button>
+            </div>
+          </div>
+
+          <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </section>
+
+        <!-- TAB 3: DYNO SKILLS & TECH STACK TELEMETRY -->
+        <section id="tab-skills" class="dossier-tab-panel space-y-4 hidden">
+          <div>
+            <h3 class="font-racing font-bold text-base text-white">Engine Dyno Telemetry // Technical Stack &amp; Competencies</h3>
+            <p class="text-xs text-slate-400">Full-stack MERN, PHP Laravel, Java RMI/Spring Boot, and Cross-Platform Flutter capabilities from PyaeFolio &amp; Resume.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="skills-grid">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+
+        <!-- TAB 4: PIT RADIO CONTACT & COMMS -->
+        <section id="tab-contact" class="dossier-tab-panel space-y-5 hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div class="lg:col-span-2 bg-slate-900/90 rounded-2xl p-5 border border-white/10 space-y-4">
+              <span class="text-[10px] font-racing uppercase tracking-widest text-red-400">PIT WALL COMMUNICATIONS</span>
+              <h3 class="font-racing font-bold text-lg text-white">Let's Work Together</h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Open for software engineering roles, backend/full-stack internships, and collaborative projects. Transmit a message over Pit Radio or reach out directly.
+              </p>
+              <div class="space-y-3 pt-2 text-xs">
+                <div class="p-3 rounded-xl bg-slate-950 border border-white/10">
+                  <div class="text-[10px] font-racing text-slate-400 uppercase">Email Channel</div>
+                  <a href="mailto:pyarephyoehlaing16@gmail.com" class="text-red-400 hover:underline font-medium block">pyarephyoehlaing16@gmail.com</a>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-950 border border-white/10">
+                  <div class="text-[10px] font-racing text-slate-400 uppercase">Direct Phone / Pit Line</div>
+                  <div class="text-white font-medium">+95 9757524978</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-950 border border-white/10">
+                  <div class="text-[10px] font-racing text-slate-400 uppercase">Home Circuit Location</div>
+                  <div class="text-white font-medium">Yangon, Myanmar</div>
+                </div>
+                <div class="p-3 rounded-xl bg-slate-950 border border-white/10">
+                  <div class="text-[10px] font-racing text-slate-400 uppercase">Social Channels</div>
+                  <a href="https://www.linkedin.com/in/pyareph" target="_blank" rel="noopener noreferrer" class="text-red-400 hover:underline font-medium block">LinkedIn ↗</a>
+                  <a href="https://github.com/pyaephyo11979" target="_blank" rel="noopener noreferrer" class="text-slate-300 hover:underline block text-[11px]">GitHub ↗</a>
+                </div>
+              </div>
+            </div>
+
+            <form id="pit-contact-form" class="lg:col-span-3 bg-slate-900/90 rounded-2xl p-5 border border-white/10 space-y-4">
+              <h4 class="font-racing font-bold text-sm uppercase tracking-wider text-amber-400">Transmit Pit Radio Dispatch</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-[11px] font-racing uppercase text-slate-300 mb-1" for="contact-name">Your Name / Team Principal</label>
+                  <input id="contact-name" type="text" required placeholder="e.g. Alex Rivera" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white focus:outline-none focus:border-red-500" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-racing uppercase text-slate-300 mb-1" for="contact-email">Return Telemetry (Email)</label>
+                  <input id="contact-email" type="email" required placeholder="alex@company.com" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white focus:outline-none focus:border-red-500" />
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-racing uppercase text-slate-300 mb-1" for="contact-subject">Project Class / Role</label>
+                <select id="contact-subject" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white focus:outline-none focus:border-red-500">
+                  <option value="Full-Stack / MERN Opportunity">Full-Stack / MERN Opportunity</option>
+                  <option value="Backend Engineering (Laravel / Node / Spring Boot)">Backend Engineering (Laravel / Node / Spring Boot)</option>
+                  <option value="Mobile Development (Flutter)">Mobile Development (Flutter)</option>
+                  <option value="General Collaboration">General Collaboration</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-racing uppercase text-slate-300 mb-1" for="contact-message">Transmission Message</label>
+                <textarea id="contact-message" rows="4" required placeholder="Share role details, project specs, or interview timing..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/15 text-xs text-white focus:outline-none focus:border-red-500"></textarea>
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <span id="contact-status" class="text-xs text-emerald-400 font-medium"></span>
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-racing text-xs font-bold uppercase tracking-wider shadow-lg transition-all">
+                  Send Radio Transmission →
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="race-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl hud-glass border border-amber-400/50 text-xs font-racing text-amber-300 shadow-xl pointer-events-none opacity-0 transition-opacity duration-300">
+    WARPING TO SECTOR...
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/scene.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/loop.js"></script>
+</body>
+</html>
