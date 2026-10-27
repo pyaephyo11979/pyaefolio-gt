@@ -60,7 +60,7 @@ const TRACK_ZONES = [
     tag: "CHECKPOINT 02 // TEAM TELEMETRY",
     title: "Tech Breeze Limited (Backend Developer Intern)",
     subtitle: "April 2025 – Present • E-Commerce Backend Architecture",
-    desc: "Developing scalable backend services for e-commerce platforms using PHP Laravel, designing normalized relational database schemas, and building RESTful API endpoints.",
+    desc: "Developed backend services for e-commerce using Laravel, designed database schemas, and built API endpoints.",
     badges: ["PHP Laravel", "Database Schema Design", "RESTful APIs", "E-Commerce Backend"],
     linkText: "Tech Breeze Website ↗",
     linkUrl: "https://www.tech-breeze.com.mm",
