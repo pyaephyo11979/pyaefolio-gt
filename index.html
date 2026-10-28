@@ -71,6 +71,9 @@
         <button id="audio-btn" title="Toggle V10 Engine Synthesizer" class="px-2.5 py-1.5 rounded-lg text-[11px] font-racing font-semibold uppercase tracking-wider bg-white/5 hover:bg-white/15 text-slate-300 border border-white/10 transition-all">
           Audio: <span id="audio-label">MUTE</span>
         </button>
+        <button id="theme-btn" title="Toggle Light / Dark Theme" class="px-2.5 py-1.5 rounded-lg text-[11px] font-racing font-semibold uppercase tracking-wider bg-white/5 hover:bg-white/15 text-slate-200 border border-white/10 transition-all">
+          <span id="theme-icon">☾</span> <span class="hidden sm:inline">Theme:</span> <span id="theme-label">Dark</span>
+        </button>
       </div>
     </div>
   </header>
@@ -505,6 +508,32 @@
   <!-- Toast Notification -->
   <div id="race-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-xl hud-glass border border-amber-400/50 text-xs font-racing text-amber-300 shadow-xl pointer-events-none opacity-0 transition-opacity duration-300">
     WARPING TO SECTOR...
+  </div>
+
+  <!-- ONBOARDING INTRO OVERLAY (Portfolio-first: explains it's a portfolio + how to skip racing) -->
+  <div id="intro-overlay" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="hud-glass max-w-lg w-full rounded-2xl border border-cyan-400/30 p-6 sm:p-8 text-center pointer-events-auto">
+      <span class="px-3 py-1 rounded-full bg-red-600 text-white font-racing text-[11px] font-bold uppercase tracking-wider">Interactive Portfolio // Night City Circuit</span>
+      <h1 class="font-racing font-black text-2xl sm:text-3xl text-white mt-4 mb-2">PYAEFOLIO <span class="text-[#fcee0a]">2077</span></h1>
+      <p class="text-sm text-slate-300 leading-relaxed mb-5">
+        This is the portfolio of <span class="text-white font-semibold">Pyae Phyo Hlaing</span> — Junior Full Stack Developer (React, Node.js, Laravel, Java, Flutter). Explore it by <span class="text-cyan-300 font-semibold">driving the cyberpunk circuit</span>, where each sector gate is a real project or experience.
+      </p>
+      <div class="text-left text-xs text-slate-300 space-y-1.5 mb-6 bg-slate-950/60 rounded-xl p-3 border border-white/10">
+        <div class="flex justify-between"><span>Drive</span><kbd class="font-racing text-amber-300">W / A / S / D or Arrows</kbd></div>
+        <div class="flex justify-between"><span>NOS Boost</span><kbd class="font-racing text-cyan-300">SHIFT / SPACE</kbd></div>
+        <div class="flex justify-between"><span>Cycle Camera</span><kbd class="font-racing text-red-400">C</kbd></div>
+        <div class="flex justify-between"><span>Switch Car</span><kbd class="font-racing text-emerald-400">1 / 2 / 3</kbd></div>
+        <div class="flex justify-between"><span>Cross the FINISH gate</span><span class="text-pink-300">opens Contact</span></div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button id="intro-portfolio-btn" class="flex-1 px-5 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-racing text-sm font-bold uppercase tracking-wider shadow-lg transition-all">
+          Skip Racing — View Portfolio ↗
+        </button>
+        <button id="intro-drive-btn" class="flex-1 px-5 py-3 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/40 font-racing text-sm font-bold uppercase tracking-wider transition-all">
+          🏎️ Start Driving
+        </button>
+      </div>
+    </div>
   </div>
 
   <script src="js/data.js"></script>

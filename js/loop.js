@@ -188,6 +188,16 @@ function animate(now) {
     updateLiveZoneHUD(activeZoneIndex, Math.round(minZoneDist));
   }
 
+  // FINISH-LINE GATE: crossing it opens the Pit Radio contact screen
+  if (typeof finishGatePosition !== "undefined") {
+    const finishDist = carPos.distanceTo(finishGatePosition);
+    if (finishDist < 6 && carSpeed > 0.1 && (!lastFinishCross || now - lastFinishCross > 4000)) {
+      lastFinishCross = now;
+      showToast("🏁 FINISH LINE — OPENING PIT RADIO CONTACT");
+      openDossierModal("contact");
+    }
+  }
+
   // Digital Speedometer, Gear, RPM & Audio Telemetry
   const speedRatio = Math.min(1, Math.abs(carSpeed) / spec.maxSpeed);
   const kmh = Math.round(speedRatio * spec.displayMaxKmh * (isBoosting ? 1.15 : 1));

@@ -17,6 +17,7 @@ let bestLapSeconds = null;
 let lastTrackT = 0;
 let passedHalfway = false;
 let activeZoneIndex = 0;
+let lastFinishCross = 0;
 
 // Place car at Start Grid (t = 0)
 function warpToTrackProgress(targetT) {

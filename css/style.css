@@ -71,3 +71,89 @@ body, html {
 .tach-bar {
   transition: width 0.08s linear, background-color 0.15s ease;
 }
+
+/* =========================================================================
+   LIGHT THEME — activated by <html class="light"> (system/auto by default)
+   ========================================================================= */
+:root {
+  --panel: rgba(255, 255, 255, 0.82);
+  --panel-solid: #f7f8fb;
+  --panel-2: #eef1f6;
+  --ink: #0b1120;
+  --ink-soft: #33405a;
+  --line: rgba(15, 23, 42, 0.12);
+  --line-soft: rgba(15, 23, 42, 0.07);
+  --field: #ffffff;
+}
+html.light body,
+html.light {
+  background-color: #eef1f6;
+  color: var(--ink);
+}
+
+html.light .hud-glass {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(244, 246, 250, 0.86) 100%);
+  border-color: rgba(12, 16, 32, 0.14);
+  box-shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.22), 0 0 15px rgba(0, 240, 255, 0.08), inset 0 0 12px rgba(0, 240, 255, 0.04);
+}
+html.light .cyber-scanlines {
+  background: repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0, 80, 120, 0.04) 3px, rgba(15, 23, 42, 0.05) 4px);
+}
+html.light .custom-scroll::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.06);
+}
+html.light .custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(220, 38, 38, 0.55);
+}
+
+/* Re-map the dark utility palette used across HUD to light equivalents */
+html.light .bg-slate-900,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/90 { background-color: var(--panel); }
+html.light .bg-slate-950,
+html.light .bg-slate-950\/60,
+html.light .bg-slate-950\/70,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/90 { background-color: var(--panel-2); }
+html.light .bg-slate-800 { background-color: #e4e8ef; }
+
+html.light .text-white { color: var(--ink); }
+html.light .text-slate-100,
+html.light .text-slate-200 { color: var(--ink); }
+html.light .text-slate-300 { color: var(--ink-soft); }
+html.light .text-slate-400 { color: #5b6780; }
+
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20 { border-color: var(--line); }
+
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: var(--field);
+  color: var(--ink);
+  border-color: var(--line);
+}
+html.light input::placeholder,
+html.light textarea::placeholder { color: #8a94a8; }
+
+/* Accent text needs a darker shade on light bg for contrast */
+html.light .text-amber-300 { color: #b45309; }
+html.light .text-amber-400 { color: #a3560a; }
+html.light .text-cyan-200 { color: #0e7490; }
+html.light .text-cyan-300 { color: #0891b2; }
+html.light .text-red-300 { color: #b91c1c; }
+html.light .text-red-400 { color: #dc2626; }
+html.light .text-emerald-300 { color: #047857; }
+html.light .text-emerald-400 { color: #059669; }
+html.light .text-pink-300 { color: #be185d; }
+
+/* Buttons that rely on translucent white over dark — give them light surfaces */
+html.light .bg-white\/5 { background-color: rgba(15, 23, 42, 0.04); }
+html.light .bg-white\/10 { background-color: rgba(15, 23, 42, 0.06); }
+html.light .bg-white\/15 { background-color: rgba(15, 23, 42, 0.09); }
+html.light .hover\:bg-white\/10:hover { background-color: rgba(15, 23, 42, 0.08); }
+html.light .hover\:bg-white\/15:hover { background-color: rgba(15, 23, 42, 0.11); }
+html.light .hover\:bg-white\/20:hover { background-color: rgba(15, 23, 42, 0.14); }

@@ -144,6 +144,62 @@ document.querySelectorAll(".proj-filter-btn").forEach(btn => {
   });
 });
 
+// Onboarding Intro Overlay — Portfolio-first: offer instant skip to content
+const introOverlay = document.getElementById("intro-overlay");
+const introPortfolioBtn = document.getElementById("intro-portfolio-btn");
+const introDriveBtn = document.getElementById("intro-drive-btn");
+
+function dismissIntro() {
+  if (introOverlay) introOverlay.classList.add("hidden");
+}
+
+if (introPortfolioBtn) {
+  introPortfolioBtn.addEventListener("click", () => {
+    dismissIntro();
+    setAppMode("track");
+    openDossierModal("overview");
+  });
+}
+if (introDriveBtn) {
+  introDriveBtn.addEventListener("click", () => {
+    dismissIntro();
+    showToast("DRIVE THROUGH SECTOR GATES TO EXPLORE THE PORTFOLIO");
+  });
+}
+
+// Theme Toggle (Dark <-> Light), persisted + respects system preference on first visit
+const themeBtn = document.getElementById("theme-btn");
+const themeIcon = document.getElementById("theme-icon");
+const themeLabel = document.getElementById("theme-label");
+
+function applyTheme(mode) {
+  const isLight = mode === "light";
+  document.documentElement.classList.toggle("light", isLight);
+  if (themeIcon) themeIcon.textContent = isLight ? "☀" : "☾";
+  if (themeLabel) themeLabel.textContent = isLight ? "Light" : "Dark";
+  // Flip the 3D scenery (sky, fog, lighting) to match the UI theme
+  if (typeof window.setSceneryTheme === "function") {
+    window.setSceneryTheme(isLight ? "day" : "night");
+  }
+  try { localStorage.setItem("pph-theme", mode); } catch (e) {}
+}
+
+// Initial theme: saved choice, else system preference (default dark)
+let savedTheme = null;
+try { savedTheme = localStorage.getItem("pph-theme"); } catch (e) {}
+if (!savedTheme) {
+  savedTheme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+applyTheme(savedTheme);
+
+if (themeBtn) {
+  themeBtn.addEventListener("click", () => {
+    const next = document.documentElement.classList.contains("light") ? "dark" : "light";
+    applyTheme(next);
+    showToast(`THEME: ${next.toUpperCase()}`);
+  });
+}
+
 // Contact Form Handler
 document.getElementById("pit-contact-form").addEventListener("submit", (e) => {
   e.preventDefault();

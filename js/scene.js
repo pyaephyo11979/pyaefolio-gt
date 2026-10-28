@@ -24,6 +24,43 @@ const magentaFillLight = new THREE.DirectionalLight(0xff0055, 0.9);
 magentaFillLight.position.set(-120, 110, -90);
 scene.add(magentaFillLight);
 
+// =========================================================================
+// SCENERY THEME (Night City vs Daylight) — flips the 3D world's sky, fog & lights
+// =========================================================================
+const SCENERY_THEMES = {
+  night: {
+    background: 0x070312,
+    fogColor: 0x0b041c,
+    fogDensity: 0.0024,
+    ambient: { color: 0x2a164d, intensity: 0.95 },
+    dir: { color: 0x00f0ff, intensity: 1.15 },
+    fill: { color: 0xff0055, intensity: 0.9 }
+  },
+  day: {
+    background: 0x8fbfe6,       // soft blue sky
+    fogColor: 0xbcd6ec,          // light atmospheric haze
+    fogDensity: 0.0011,
+    ambient: { color: 0xdfeaf5, intensity: 1.35 },
+    dir: { color: 0xfff2d6, intensity: 1.5 },   // warm sun
+    fill: { color: 0xbfd4ff, intensity: 0.6 }    // cool sky bounce
+  }
+};
+
+function setSceneryTheme(mode) {
+  const th = SCENERY_THEMES[mode] || SCENERY_THEMES.night;
+  scene.background = new THREE.Color(th.background);
+  scene.fog.color.setHex(th.fogColor);
+  scene.fog.density = th.fogDensity;
+  ambientLight.color.setHex(th.ambient.color);
+  ambientLight.intensity = th.ambient.intensity;
+  dirLight.color.setHex(th.dir.color);
+  dirLight.intensity = th.dir.intensity;
+  magentaFillLight.color.setHex(th.fill.color);
+  magentaFillLight.intensity = th.fill.intensity;
+}
+// Expose for the theme toggle in controls.js
+window.setSceneryTheme = setSceneryTheme;
+
 // Closed Grand Prix Spline Circuit
 const trackControlPoints = [
   new THREE.Vector3(0, 0, 0),
@@ -259,7 +296,7 @@ const cyberHalo = new THREE.Mesh(haloGeom, haloMat);
 cyberHalo.position.copy(cyberMoon.position);
 scene.add(cyberHalo);
 
-// Build Checkpoint Gantry Arches, Japanese Holo-Signs & Glowing Beacons along the Circuit
+// Build Floating Holographic Sector AIR-GATES (no ground pillars) & Glowing Beacons
 const checkpointMeshes = [];
 const ZONE_JP_LABELS = [
   "ナイトシティ // START GRID",
@@ -280,29 +317,38 @@ TRACK_ZONES.forEach((zone, idx) => {
   archGroup.position.copy(pt);
   archGroup.rotation.y = angle;
 
-  const pillarGeom = new THREE.BoxGeometry(1.1, 11.5, 1.1);
-  const pillarMat = new THREE.MeshStandardMaterial({ color: 0x090414, metalness: 0.85, roughness: 0.15 });
+  // Floating Neon Portal Ring — hovers above the road, car drives straight through it
+  const ringRadius = 6.8;
+  const ringY = 7.2;
+  const portalOuter = new THREE.Mesh(
+    new THREE.TorusGeometry(ringRadius, 0.42, 16, 64),
+    new THREE.MeshBasicMaterial({ color: zone.archColor })
+  );
+  portalOuter.position.set(0, ringY, 0);
+  archGroup.add(portalOuter);
 
-  const leftPillar = new THREE.Mesh(pillarGeom, pillarMat);
-  leftPillar.position.set(-(ROAD_HALF_WIDTH + 1.6), 5.75, 0);
-  archGroup.add(leftPillar);
+  const portalInner = new THREE.Mesh(
+    new THREE.TorusGeometry(ringRadius - 0.9, 0.12, 12, 64),
+    new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.7 })
+  );
+  portalInner.position.set(0, ringY, 0);
+  archGroup.add(portalInner);
 
-  const rightPillar = new THREE.Mesh(pillarGeom, pillarMat);
-  rightPillar.position.set(ROAD_HALF_WIDTH + 1.6, 5.75, 0);
-  archGroup.add(rightPillar);
+  // Faint energy field disc filling the portal
+  const portalDisc = new THREE.Mesh(
+    new THREE.CircleGeometry(ringRadius - 0.9, 48),
+    new THREE.MeshBasicMaterial({
+      color: zone.archColor,
+      transparent: true,
+      opacity: 0.08,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    })
+  );
+  portalDisc.position.set(0, ringY, 0);
+  archGroup.add(portalDisc);
 
-  // Neon Strips on Pillars
-  const stripGeom = new THREE.BoxGeometry(0.25, 11.2, 1.2);
-  const stripMat = new THREE.MeshBasicMaterial({ color: zone.archColor });
-  const leftStrip = new THREE.Mesh(stripGeom, stripMat);
-  leftStrip.position.set(-(ROAD_HALF_WIDTH + 1.0), 5.75, 0);
-  archGroup.add(leftStrip);
-
-  const rightStrip = leftStrip.clone();
-  rightStrip.position.x = ROAD_HALF_WIDTH + 1.0;
-  archGroup.add(rightStrip);
-
-  // Overhead Cyberpunk Holographic Billboard Gantry
+  // Floating Cyberpunk Holographic Billboard above the ring
   const boardTex = createHoloBillboardTexture(
     zone.sector + " // " + (idx + 1),
     zone.title.slice(0, 32),
@@ -312,9 +358,9 @@ TRACK_ZONES.forEach((zone, idx) => {
     "#00f0ff"
   );
   const beamGeom = new THREE.BoxGeometry((ROAD_HALF_WIDTH + 2.2) * 2, 3.2, 0.8);
-  const beamMat = new THREE.MeshBasicMaterial({ map: boardTex });
+  const beamMat = new THREE.MeshBasicMaterial({ map: boardTex, transparent: true, opacity: 0.92 });
   const beam = new THREE.Mesh(beamGeom, beamMat);
-  beam.position.set(0, 10.2, 0);
+  beam.position.set(0, 14.4, 0);
   archGroup.add(beam);
 
   // Top Neon Frame Bar
@@ -322,19 +368,127 @@ TRACK_ZONES.forEach((zone, idx) => {
     new THREE.BoxGeometry((ROAD_HALF_WIDTH + 2.4) * 2, 0.35, 1.1),
     new THREE.MeshBasicMaterial({ color: zone.archColor })
   );
-  topBar.position.set(0, 12.0, 0);
+  topBar.position.set(0, 16.2, 0);
   archGroup.add(topBar);
 
-  // Floating rotating beacon crystal above arch
+  // Floating rotating beacon crystal above the air-gate
   const crystalGeom = new THREE.OctahedronGeometry(1.6, 0);
   const crystalMat = new THREE.MeshBasicMaterial({ color: zone.archColor, wireframe: true });
   const crystal = new THREE.Mesh(crystalGeom, crystalMat);
-  crystal.position.set(0, 14.5, 0);
+  crystal.position.set(0, 18.4, 0);
   archGroup.add(crystal);
 
   scene.add(archGroup);
   checkpointMeshes.push({ crystal, zone, position: pt });
 });
+
+// =========================================================================
+// AUTOCROSS SLALOM GATES — offset neon gates you weave between sectors
+// =========================================================================
+const slalomGates = [];
+const SLALOM_COUNT = 28;
+for (let i = 0; i < SLALOM_COUNT; i++) {
+  const t = (i + 0.5) / SLALOM_COUNT;
+  const pt = trackCurve.getPointAt(t);
+  const tangent = trackCurve.getTangentAt(t).normalize();
+  const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
+
+  // Alternate gates left / right so the car weaves through them
+  const sideSign = i % 2 === 0 ? 1 : -1;
+  const lateral = sideSign * (ROAD_HALF_WIDTH * 0.45);
+  const gatePos = pt.clone().addScaledVector(normal, lateral);
+
+  const gateCol = i % 3 === 0 ? 0x00f0ff : (i % 3 === 1 ? 0xff0055 : 0xfcee0a);
+  const gateGroup = new THREE.Group();
+  gateGroup.position.copy(gatePos);
+  gateGroup.rotation.y = Math.atan2(tangent.x, tangent.z);
+
+  const gateHalfW = 2.6;
+  const postGeom = new THREE.CylinderGeometry(0.16, 0.16, 4.2, 8);
+  const postMat = new THREE.MeshBasicMaterial({ color: gateCol });
+
+  const postL = new THREE.Mesh(postGeom, postMat);
+  postL.position.set(-gateHalfW, 2.1, 0);
+  gateGroup.add(postL);
+
+  const postR = new THREE.Mesh(postGeom, postMat);
+  postR.position.set(gateHalfW, 2.1, 0);
+  gateGroup.add(postR);
+
+  // Floating top cross-bar chevron
+  const barGeom = new THREE.BoxGeometry(gateHalfW * 2 + 0.4, 0.3, 0.3);
+  const barMat = new THREE.MeshBasicMaterial({ color: gateCol });
+  const bar = new THREE.Mesh(barGeom, barMat);
+  bar.position.set(0, 4.2, 0);
+  gateGroup.add(bar);
+
+  scene.add(gateGroup);
+  slalomGates.push({ group: gateGroup, position: gatePos, color: gateCol });
+}
+
+// =========================================================================
+// FINISH-LINE GATE — crossing it opens the Pit Radio contact screen
+// =========================================================================
+const finishT = 0.0;
+const finishPt = trackCurve.getPointAt(finishT);
+const finishTangent = trackCurve.getTangentAt(finishT).normalize();
+const finishGroup = new THREE.Group();
+finishGroup.position.copy(finishPt);
+finishGroup.rotation.y = Math.atan2(finishTangent.x, finishTangent.z);
+
+// Checkered finish beam texture
+function createFinishTexture() {
+  const c = document.createElement("canvas");
+  c.width = 512;
+  c.height = 128;
+  const ctx = c.getContext("2d");
+  const cols = 16;
+  const rows = 4;
+  const cellW = c.width / cols;
+  const cellH = c.height / rows;
+  for (let r = 0; r < rows; r++) {
+    for (let col = 0; col < cols; col++) {
+      ctx.fillStyle = (r + col) % 2 === 0 ? "#0b0715" : "#fcee0a";
+      ctx.fillRect(col * cellW, r * cellH, cellW, cellH);
+    }
+  }
+  ctx.fillStyle = "#ff0055";
+  ctx.fillRect(0, 0, c.width, 6);
+  ctx.fillRect(0, c.height - 6, c.width, 6);
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 40px Orbitron, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("FINISH // PIT RADIO", c.width / 2, c.height / 2 + 14);
+  return new THREE.CanvasTexture(c);
+}
+
+const finishBeam = new THREE.Mesh(
+  new THREE.BoxGeometry((ROAD_HALF_WIDTH + 2.6) * 2, 2.4, 0.7),
+  new THREE.MeshBasicMaterial({ map: createFinishTexture() })
+);
+finishBeam.position.set(0, 6.4, 0);
+finishGroup.add(finishBeam);
+
+// Two slim finish posts (kept off the driving line, at the curbs)
+const finishPostGeom = new THREE.CylinderGeometry(0.22, 0.22, 6.2, 10);
+const finishPostMat = new THREE.MeshBasicMaterial({ color: 0xfcee0a });
+const finishPostL = new THREE.Mesh(finishPostGeom, finishPostMat);
+finishPostL.position.set(-(ROAD_HALF_WIDTH + 1.6), 3.1, 0);
+finishGroup.add(finishPostL);
+const finishPostR = new THREE.Mesh(finishPostGeom, finishPostMat);
+finishPostR.position.set(ROAD_HALF_WIDTH + 1.6, 3.1, 0);
+finishGroup.add(finishPostR);
+
+// Rotating checkered crown beacon
+const finishCrown = new THREE.Mesh(
+  new THREE.OctahedronGeometry(1.4, 0),
+  new THREE.MeshBasicMaterial({ color: 0xfcee0a, wireframe: true })
+);
+finishCrown.position.set(0, 9.0, 0);
+finishGroup.add(finishCrown);
+
+scene.add(finishGroup);
+const finishGatePosition = finishPt.clone();
 
 // Build Cyberpunk 2077 Night City Megabuildings, Skyscrapers, Streetlights & Holograms
 const winTexCyan = createCyberWindowTexture("#00f0ff", "#fcee0a");
@@ -362,8 +516,8 @@ for (let i = 0; i < 130; i++) {
   const tangent = trackCurve.getTangentAt(t).normalize();
   const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
 
-  // Inner and outer Night City megabuilding rows
-  const rowOffset = (i % 3 === 0) ? (22 + (i * 11) % 25) : (48 + (i * 23) % 85);
+  // Inner and outer Night City megabuilding rows — set well back from the asphalt
+  const rowOffset = (i % 3 === 0) ? (40 + (i * 11) % 28) : (72 + (i * 23) % 95);
   const side = (i % 2 === 0 ? 1 : -1) * rowOffset;
   const pos = pt.clone().addScaledVector(normal, side);
 
@@ -453,39 +607,15 @@ for (let i = 0; i < 130; i++) {
   scene.add(bldgGroup);
 }
 
-// Trackside Cyberpunk Cantilever Neon Streetlamps & Rotating Holo-Rings
+// Trackside Neon Cyber Tunnel Rings (streetlamp poles removed — road kept clear)
 for (let i = 0; i < 60; i++) {
   const t = i / 60;
   const pt = trackCurve.getPointAt(t);
   const tangent = trackCurve.getTangentAt(t).normalize();
-  const normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize();
-  const sideSign = i % 2 === 0 ? 1 : -1;
-  const lampPos = pt.clone().addScaledVector(normal, sideSign * (ROAD_HALF_WIDTH + 2.4));
-
-  const lampGroup = new THREE.Group();
-  lampGroup.position.copy(lampPos);
-  lampGroup.rotation.y = Math.atan2(tangent.x, tangent.z);
-
-  const poleMat = new THREE.MeshStandardMaterial({ color: 0x110926, metalness: 0.8, roughness: 0.2 });
-  const pole = new THREE.Mesh(new THREE.BoxGeometry(0.28, 7.2, 0.28), poleMat);
-  pole.position.set(0, 3.6, 0);
-  lampGroup.add(pole);
-
-  const arm = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.2, 0.24), poleMat);
-  arm.position.set(-sideSign * 1.2, 7.1, 0);
-  lampGroup.add(arm);
 
   const bulbCol = i % 3 === 0 ? 0x00f0ff : (i % 3 === 1 ? 0xff0055 : 0xfcee0a);
-  const neonTube = new THREE.Mesh(
-    new THREE.BoxGeometry(2.2, 0.14, 0.35),
-    new THREE.MeshBasicMaterial({ color: bulbCol })
-  );
-  neonTube.position.set(-sideSign * 1.3, 6.95, 0);
-  lampGroup.add(neonTube);
 
-  scene.add(lampGroup);
-
-  // Every 6th lamp, add a giant elevated Neon Cyber Tunnel Ring over the road
+  // Elevated Neon Cyber Tunnel Ring arching over the road
   if (i % 6 === 0) {
     const ringMesh = new THREE.Mesh(
       new THREE.TorusGeometry(ROAD_HALF_WIDTH + 3.2, 0.18, 8, 48, Math.PI),

@@ -139,29 +139,29 @@ const PORTFOLIO_PROJECTS = [
     title: "CareerHub (Work Searching Platform)",
     category: "fullstack",
     badge: "Flagship Full-Stack",
-    tech: ["React", "Node.js", "Express", "MongoDB", "Redux"],
-    desc: "A full-featured job search platform that connects job seekers with employers, featuring job listings, user management, and search filtering.",
-    liveUrl: "https://car33rhub.netlify.app",
+    tech: ["React", "Vite", "Material UI", "Context API", "REST API"],
+    desc: "A job portal connecting job seekers and employers through role-based workflows.",
+    liveUrl: "https://car33rhub.netlify.app/",
     repoUrl: "https://github.com/pyaephyo11979/CareerHub",
     warpT: 0.42
   },
   {
-    title: "Online Voting System",
+    title: "Voting System",
     category: "fullstack",
     badge: "Distributed System",
-    tech: ["React", "Java RMI", "Java Spring Boot", "MySQL"],
-    desc: "A distributed interactive voting system with Java RMI backend logic, a Java Spring Boot API bridge, and real-time results display in ReactJS.",
-    liveUrl: "https://pyaefolio.netlify.app/",
-    repoUrl: "https://github.com/pyaephyo11979/Voting-System",
+    tech: ["React", "Java RMI", "Spring Boot", "MySQL"],
+    desc: "An interactive voting application with real-time result displays.",
+    liveUrl: "",
+    repoUrl: "https://github.com/pyaephyo11979/VotingSystem",
     warpT: 0.56
   },
   {
-    title: "Open Path Mobile Application",
+    title: "Open Path Mobile",
     category: "mobile",
     badge: "Mobile App",
-    tech: ["Flutter", "Dart", "Mobile UI/UX", "Cross-Platform"],
-    desc: "A cross-platform mobile application built with Flutter that enables users to seamlessly access the Open Path platform on mobile devices.",
-    liveUrl: "https://pyaefolio.netlify.app/",
+    tech: ["Flutter", "Dart", "Dio", "go_router", "Firebase FCM"],
+    desc: "A Flutter learning app with video lessons, quizzes and progress tracking.",
+    liveUrl: "",
     repoUrl: "https://github.com/pyaephyo11979/open_path",
     warpT: 0.72
   },
@@ -169,29 +169,29 @@ const PORTFOLIO_PROJECTS = [
     title: "Open Path Backend API",
     category: "backend",
     badge: "Production API",
-    tech: ["Node.js", "Express", "Prisma ORM", "PostgreSQL", "JWT", "Firebase FCM"],
-    desc: "Robust backend API providing secure endpoints for the Open Path platform with JWT authentication, authorization, data validation, and push notifications.",
-    liveUrl: "https://pyaefolio.netlify.app/",
-    repoUrl: "https://github.com/pyaephyo11979/openpath_backend'",
+    tech: ["Node.js", "Express", "PostgreSQL", "Prisma ORM", "JWT", "Joi"],
+    desc: "REST API infrastructure for a mobile learning platform, from authentication to course management.",
+    liveUrl: "",
+    repoUrl: "https://github.com/pyaephyo11979/openpath_backend",
     warpT: 0.72
   },
   {
-    title: "Travel Relax (Travel Agency Website)",
+    title: "Travel Relax",
     category: "fullstack",
     badge: "Enterprise Web",
-    tech: ["JavaEE", "JSP", "Servlet", "Spring Boot", "MySQL", "Bootstrap"],
-    desc: "Full-stack travel agency web platform featuring user authentication, tour package booking workflows, and integrated payment processing.",
-    liveUrl: "https://pyaefolio.netlify.app/",
+    tech: ["JavaEE", "JSP", "MySQL", "Spring Boot"],
+    desc: "A travel agency application with authentication, booking and payment workflows.",
+    liveUrl: "",
     repoUrl: "https://github.com/pyaephyo11979/TravelAgencyProjecct",
     warpT: 0.56
   },
   {
-    title: "CareerCraft (Backend API)",
+    title: "CareerCraft API",
     category: "backend",
     badge: "REST API",
-    tech: ["Node.js", "Express", "MongoDB", "JWT", "Middleware"],
-    desc: "Complete backend REST API architecture featuring token-based authentication, role authorization, custom middleware, and strict schema validation.",
-    liveUrl: "https://pyaefolio.netlify.app/",
+    tech: ["Node.js", "Express", "MongoDB", "JWT"],
+    desc: "A backend API with authentication, authorization and data validation.",
+    liveUrl: "",
     repoUrl: "https://github.com/pyaephyo11979/workSearchingProgramme/tree/main/backend",
     warpT: 0.72
   },
@@ -199,9 +199,9 @@ const PORTFOLIO_PROJECTS = [
     title: "Weather Application",
     category: "frontend",
     badge: "Data Visualization",
-    tech: ["React", "REST API Integration", "Geolocation", "CSS3"],
-    desc: "Location-aware weather forecasting application delivering real-time meteorological telemetry and responsive visual forecast cards.",
-    liveUrl: "https://pyaefolio.netlify.app/",
+    tech: ["React", "API Integration", "Geolocation"],
+    desc: "Location-based weather forecasts with visual displays.",
+    liveUrl: "",
     repoUrl: "https://github.com/pyaephyo11979/WeatherApp",
     warpT: 0.42
   },
@@ -209,9 +209,9 @@ const PORTFOLIO_PROJECTS = [
     title: "Readers' Choice",
     category: "frontend",
     badge: "Frontend Library",
-    tech: ["React", "Responsive Design", "API Integration", "Tailwind CSS"],
-    desc: "Frontend online digital library engineered with a clean, modern reading interface, fast book discovery, and adaptive layout across devices.",
-    liveUrl: "https://pyaefolio.netlify.app/",
+    tech: ["Responsive Design", "API Integration"],
+    desc: "An online library frontend with a responsive layout.",
+    liveUrl: "",
     repoUrl: "https://github.com/pyaephyo11979/RC",
     warpT: 0.42
   }
@@ -228,7 +228,7 @@ const SKILL_CATEGORIES = [
     title: "Backend Powertrain",
     rpm: "9,800 RPM",
     color: "from-cyan-400 to-blue-500",
-    items: ["Node.js & Express.js", "PHP Laravel", "Java (RMI & Spring Boot)", "RESTful APIs", "Authentication & JWT", "Middleware & Error Handling"]
+    items: ["Node.js & Express.js", "PHP Laravel", "Java (RMI & Spring Boot)", "RESTful APIs", "Authentication & JWT", "Authorization & Middleware"]
   },
   {
     title: "Database & Telemetry Storage",
@@ -240,13 +240,13 @@ const SKILL_CATEGORIES = [
     title: "Mobile & Cross-Platform Chassis",
     rpm: "9,000 RPM",
     color: "from-emerald-400 to-teal-500",
-    items: ["Flutter", "Dart", "Mobile UI/UX Design", "Cross-Platform Development", "Firebase FCM Integration"]
+    items: ["Flutter", "Dart", "REST API Integration", "Mobile UI/UX Design", "Cross-Platform Development", "Firebase FCM"]
   },
   {
     title: "Pit-Lane Dev Tools & Workflow",
     rpm: "9,500 RPM",
     color: "from-purple-400 to-pink-500",
-    items: ["Git & GitHub", "VS Code", "npm / yarn", "Webpack & Babel", "ESLint", "Postman API Testing"]
+    items: ["Git & GitHub", "VS Code", "npm / yarn", "Vite", "ESLint", "Postman API Testing"]
   },
   {
     title: "Race Strategy & Engineering",

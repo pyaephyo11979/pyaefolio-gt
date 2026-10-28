@@ -23,7 +23,7 @@ function renderProjectsGrid(filter = "all") {
           ${p.tech.map(t => `<span class="px-1.5 py-0.5 text-[10px] rounded bg-white/5 text-slate-300 border border-white/10">${t}</span>`).join("")}
         </div>
         <div class="flex items-center gap-2 pt-2 border-t border-white/10">
-          <a href="${p.liveUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-racing text-[10px] font-bold uppercase">Live Demo ↗</a>
+          ${p.liveUrl ? `<a href="${p.liveUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-racing text-[10px] font-bold uppercase">Live Demo ↗</a>` : ""}
           <a href="${p.repoUrl}" target="_blank" rel="noopener noreferrer" class="flex-1 text-center py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 font-racing text-[10px] font-bold uppercase">GitHub ↗</a>
         </div>
       </div>
